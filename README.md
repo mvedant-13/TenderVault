@@ -1,41 +1,19 @@
 # TenderVault
 
 A full-stack **Tender Management System** built with the MERN stack. Organizations post tenders, vendors submit bids, and admins review and award contracts. AI features assist with summarization, bid scoring, and compliance checking.
+
 ---
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Frontend | React (Vite) + Vanilla CSS, React Router, Axios, React Hook Form + Zod |
-| Backend | Node.js + Express (ESM / `"type": "module"`) |
-| Database | MongoDB + Mongoose |
-| Auth | JWT + bcryptjs |
-| File Upload | Multer (local dev) → Cloudinary/S3 (production) |
-| AI | OpenAI / Anthropic API (planned) |
-
----
-
-## Current Progress
-
-### ✅ Phase 0 — Foundation (Complete)
-
-#### 1. Server Setup + MongoDB Connection
-- Express server with ESM modules
-- MongoDB connected via Mongoose
-- Environment variables via dotenv
-- Morgan request logging (`dev` mode)
-
-#### 2. Auth APIs
-- `POST /api/auth/register` — register with name, email, password, role, companyName, gstNumber
-- `POST /api/auth/login` — returns JWT (Bearer token)
-- Password hashed with bcryptjs (pre-save hook on User model)
-- JWT signed with userId + role, 7-day expiry
-
-#### 3. Auth Middleware
-- `protect` — verifies JWT from `Authorization: Bearer` header, attaches `req.user` (password excluded)
-- `authorizeRoles(...roles)` — role-based access control, e.g. `authorizeRoles("admin")`
-- Errors logged server-side only via `console.error()`, never exposed to client
+| Layer       | Technology                                                             |
+| ----------- | ---------------------------------------------------------------------- |
+| Frontend    | React (Vite) + Vanilla CSS, React Router, Axios, React Hook Form + Zod |
+| Backend     | Node.js + Express 5 (ESM / `"type": "module"`)                         |
+| Database    | MongoDB + Mongoose 9                                                   |
+| Auth        | JWT + bcryptjs                                                         |
+| File Upload | Multer (local dev) → Cloudinary/S3 (production) — planned              |
+| AI          | OpenAI / Anthropic API (planned)                                       |
 
 ---
 
@@ -43,7 +21,17 @@ A full-stack **Tender Management System** built with the MERN stack. Organizatio
 
 ```
 TenderVault/
-├── client/                   # React + Vite frontend (not yet scaffolded)
+├── .gitignore
+├── client/
+│   ├── src/
+│   │   ├── api/            axiosInstance.js, authApi.js
+│   │   ├── context/        AuthContextObject.js, AuthContext.jsx, useAuth.js
+│   │   ├── components/     Navbar.jsx, ProtectedRoute.jsx
+│   │   ├── pages/          Login.jsx, Register.jsx, Dashboard.jsx, Unauthorized.jsx
+│   │   ├── routes/         AppRoutes.jsx
+│   │   ├── utils/          validationSchemas.js
+│   │   ├── App.jsx, App.css, index.css, main.jsx
+│   ├── .env / .env.example
 │
 └── server/
     ├── config/
@@ -70,9 +58,9 @@ TenderVault/
 
 **User** — `name`, `email`, `password (hashed)`, `role (admin|vendor)`, `companyName`, `gstNumber`
 
-**Tender** *(planned)* — `title`, `description`, `department`, `category`, `budget`, `deadline`, `status (open|closed|awarded)`, `documents[]`, `aiSummary`, `createdBy → User`
+**Tender** _(planned)_ — `title`, `description`, `department`, `category`, `budget`, `deadline`, `status (open|closed|awarded)`, `documents[]`, `aiSummary`, `createdBy → User`
 
-**Bid** *(planned)* — `tender → Tender`, `vendor → User`, `quotedPrice`, `deliveryTime`, `documents[]`, `aiScore`, `aiFlags[]`, `status (submitted|shortlisted|rejected|awarded)`
+**Bid** _(planned)_ — `tender → Tender`, `vendor → User`, `quotedPrice`, `deliveryTime`, `documents[]`, `aiScore`, `aiFlags[]`, `status (submitted|shortlisted|rejected|awarded)`
 
 ---
 
@@ -89,13 +77,20 @@ TenderVault/
 ```bash
 # Clone the repo
 git clone https://github.com/yourusername/TenderVault.git
-cd TenderVault/server
+cd TenderVault
+
+# Backend
+cd server
+npm install
+
+# Frontend (separate terminal)
+cd ../client
 npm install
 ```
 
 ### Environment Variables
 
-Copy `.env.example` to `.env` inside `/server` and fill in values:
+**Server** — copy `server/.env.example` to `server/.env`:
 
 ```env
 PORT=5000
@@ -110,14 +105,28 @@ Generate a secure JWT secret:
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
-### Run Server
+**Client** — copy `client/.env.example` to `client/.env`:
+
+```env
+VITE_API_BASE_URL=http://localhost:5000/api
+```
+
+### Run
 
 ```bash
+# Terminal 1 — backend
 cd server
+npm run dev
+
+# Terminal 2 — frontend
+cd client
 npm run dev
 ```
 
-Backend runs on `http://localhost:5000`.
+- Backend: `http://localhost:5000`
+- Frontend: `http://localhost:5173`
+
+> **WSL note:** MongoDB (via systemd) does not auto-start on new WSL sessions. Run `sudo systemctl start mongod` before starting the server if you get an `ECONNREFUSED 127.0.0.1:27017` error.
 
 ---
 
@@ -125,52 +134,14 @@ Backend runs on `http://localhost:5000`.
 
 ### Auth
 
-| Method | Endpoint | Access | Description |
-|---|---|---|---|
-| POST | `/api/auth/register` | Public | Register (admin or vendor) |
-| POST | `/api/auth/login` | Public | Login, returns JWT |
+| Method | Endpoint             | Access | Description                |
+| ------ | -------------------- | ------ | -------------------------- |
+| POST   | `/api/auth/register` | Public | Register (admin or vendor) |
+| POST   | `/api/auth/login`    | Public | Login, returns JWT         |
 
 ### Testing in Postman
 
 For protected routes (once implemented), set in the **Authorization** tab:
+
 - Type: **Bearer Token**
 - Token: paste JWT from login response
-
----
-
-## Roadmap
-
-### Phase 0 — Foundation ✅
-- [x] Server setup + MongoDB connection
-- [x] Auth APIs — register/login (JWT)
-- [x] Auth middleware — protect + role-based routes
-
-### Phase 1 — Frontend Skeleton
-- [ ] Frontend scaffolding — Vite + React + Vanilla CSS
-- [ ] Auth UI — login/signup, AuthContext, protected routes
-
-### Phase 2 — Tender Slice
-- [ ] Tender CRUD APIs
-- [ ] Admin dashboard — create/manage tenders
-- [ ] Vendor view — browse open tenders
-
-### Phase 3 — Bid Slice
-- [ ] Bid APIs
-- [ ] Vendor dashboard — submit bids, track status
-- [ ] Admin — view/manage bids per tender
-
-### Phase 4 — AI Features
-- [ ] AI #1 — tender summarization
-- [ ] AI #2 — bid scoring/ranking
-- [ ] AI #3 — document compliance check *(optional)*
-
-### Phase 5 — Polish
-- [ ] Notifications
-- [ ] UI polish + responsive design
-- [ ] Testing
-
-### Phase 6 — Ship
-- [ ] Deployment — Atlas + Render/Railway + Vercel
-- [ ] Documentation — demo video, resume bullets
-
----

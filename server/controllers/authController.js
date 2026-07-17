@@ -40,7 +40,7 @@ export const registerUser = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Registration error:", error.message);
+    console.error("Registration error:", error.stack);
     res.status(500).json({ message: "Server error" });
   }
 };
