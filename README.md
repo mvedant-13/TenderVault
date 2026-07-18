@@ -37,16 +37,23 @@ TenderVault/
     ├── config/
     │   └── db.js
     ├── models/
-    │   └── User.js
+    │   ├── User.js
+    │   └── Tender.js
     ├── routes/
-    │   └── authRoutes.js
+    │   ├── authRoutes.js
+    │   └── tenderRoutes.js
     ├── controllers/
-    │   └── authController.js
+    │   ├── authController.js
+    │   └── tenderController.js
     ├── middleware/
-    │   └── authMiddleware.js
+    │   ├── authMiddleware.js       (protect, authorizeRoles)
+    │   └── uploadMiddleware.js     (multer config)
     ├── utils/
-    │   └── generateToken.js
+    │   ├── generateToken.js
+    │   ├── cleanupUploadedFiles.js
+    │   └── handleControllerError.js
     ├── uploads/
+    │   └── tenders/                (local file storage — dev only)
     ├── .env
     ├── .env.example
     └── server.js
@@ -58,7 +65,7 @@ TenderVault/
 
 **User** — `name`, `email`, `password (hashed)`, `role (admin|vendor)`, `companyName`, `gstNumber`
 
-**Tender** _(planned)_ — `title`, `description`, `department`, `category`, `budget`, `deadline`, `status (open|closed|awarded)`, `documents[]`, `aiSummary`, `createdBy → User`
+**Tender** — `title`, `description`, `department`, `category`, `budget`, `deadline`, `status (open|closed|awarded, default: open)`, `documents[] ({fileName, filePath, uploadedAt})`, `aiSummary`, `createdBy → User`
 
 **Bid** _(planned)_ — `tender → Tender`, `vendor → User`, `quotedPrice`, `deliveryTime`, `documents[]`, `aiScore`, `aiFlags[]`, `status (submitted|shortlisted|rejected|awarded)`
 
@@ -139,9 +146,57 @@ npm run dev
 | POST   | `/api/auth/register` | Public | Register (admin or vendor) |
 | POST   | `/api/auth/login`    | Public | Login, returns JWT         |
 
+### Tenders
+
+| Method | Endpoint           | Access               | Description                                                                                   |
+| ------ | ------------------ | -------------------- | --------------------------------------------------------------------------------------------- |
+| POST   | `/api/tenders`     | Admin only           | Create a tender (multipart/form-data, up to 5 documents)                                      |
+| GET    | `/api/tenders`     | Any logged-in user   | List tenders — supports `?status=` and `?category=` filters                                   |
+| GET    | `/api/tenders/:id` | Any logged-in user   | Get a single tender by ID                                                                     |
+| PUT    | `/api/tenders/:id` | Admin (creator only) | Update a tender; supports adding new files and removing existing ones via `documentsToDelete` |
+| DELETE | `/api/tenders/:id` | Admin (creator only) | Delete a tender and its associated files                                                      |
+
+**Notes:**
+
+- Only the admin who created a tender can update or delete it — other admins are blocked.
+- `documentsToDelete` (on PUT) accepts a JSON-stringified array of document `_id`s to remove, e.g. `["64f1a2b3c4d5e6f7g8h9i0j1"]`.
+- Deleting a tender, or removing individual documents on update, also deletes the corresponding files from `server/uploads/tenders/`.
+- Uploaded files are validated for type (`pdf`, `doc`, `docx`, `jpeg`, `png`) and size (10MB limit per file).
+
 ### Testing in Postman
 
-For protected routes (once implemented), set in the **Authorization** tab:
+For protected routes, set in the **Authorization** tab:
 
 - Type: **Bearer Token**
-- Token: paste JWT from login response
+- Token: paste JWT from the login response
+
+For tender create/update requests, use **Body → form-data** (not raw JSON) since these routes accept file uploads alongside text fields.
+
+---
+
+## Error Handling
+
+All controllers return a safe, generic message to the client (`{ message: "..." }`) while logging full error details server-side only. Common response codes:
+
+| Status | Meaning                                                  |
+| ------ | -------------------------------------------------------- |
+| 400    | Missing/invalid fields, invalid ID format, past deadline |
+| 401    | Missing or invalid JWT                                   |
+| 403    | Authenticated but not authorized for this action         |
+| 404    | Resource not found                                       |
+| 409    | Duplicate value (e.g. email already registered)          |
+| 500    | Unexpected server error                                  |
+
+---
+
+## Roadmap
+
+- [x] Phase 0 — Foundation (server, MongoDB, auth APIs, auth middleware)
+- [x] Phase 1 — Frontend skeleton (auth pages, protected routing, navbar)
+- [x] Phase 2, Step 6 — Tender CRUD APIs (backend)
+- [ ] Phase 2, Step 7 — Admin dashboard (frontend)
+- [ ] Phase 2, Step 8 — Vendor tender browsing (frontend)
+- [ ] Phase 3 — Bid slice (APIs + vendor/admin dashboards)
+- [ ] Phase 4 — AI features (summarization, bid scoring, compliance checks)
+- [ ] Phase 5 — Notifications, UI polish, testing
+- [ ] Phase 6 — Deployment (Atlas + Render/Railway + Vercel)

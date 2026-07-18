@@ -10,4 +10,12 @@ const connectDB = async () => {
   }
 };
 
+mongoose.connection.on("error", (err) => {
+  console.error("MongoDB connection error:", err.message);
+});
+
+mongoose.connection.on("disconnected", () => {
+  console.warn("MongoDB disconnected");
+});
+
 export default connectDB;
