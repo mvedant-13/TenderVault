@@ -56,10 +56,11 @@ export const createTender = async (req, res) => {
 // GET /api/tenders
 export const getTenders = async (req, res) => {
   try {
-    const { status, category } = req.query;
+    const { status, category, createdBy } = req.query;
     const filter = {};
     if (status) filter.status = status;
     if (category) filter.category = category;
+    if (createdBy) filter.createdBy = createdBy;
 
     const tenders = await Tender.find(filter)
       .populate("createdBy", "name companyName")

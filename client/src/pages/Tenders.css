@@ -1,0 +1,73 @@
+.tenders-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.tenders-page h1 {
+  margin-bottom: 1.5rem;
+  font-size: 1.75rem;
+  color: var(--color-text);
+}
+
+.tenders-page .field-error {
+  background-color: var(--color-error-bg);
+  color: var(--color-error);
+  border: 1px solid var(--color-error);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.tender-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--color-surface);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+}
+
+.tender-table thead {
+  background-color: var(--color-primary);
+}
+
+.tender-table th {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-surface);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.tender-table td {
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  color: var(--color-text);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.tender-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.tender-table tbody tr:hover {
+  background-color: var(--color-bg);
+}
+
+.tender-table td:nth-child(6) {
+  text-transform: capitalize;
+  color: var(--color-text-muted);
+}
+
+/* Responsive: allow horizontal scroll on small screens instead of squishing */
+@media (max-width: 640px) {
+  .tender-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
