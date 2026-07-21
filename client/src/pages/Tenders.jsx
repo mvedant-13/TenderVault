@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getTenders } from "../api/tenderApi";
+import { useAuth } from "../context/useAuth";
 import "./Tenders.css";
 
 const Tenders = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [tenders, setTenders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [listError, setListError] = useState("");
@@ -14,7 +16,8 @@ const Tenders = () => {
       setLoading(true);
       setListError("");
       try {
-        const data = await getTenders();
+        const params = user?.role === "vendor" ? { status: "open" } : {};
+        const data = await getTenders(params);
         setTenders(data);
       } catch {
         setListError("Failed to load tenders. Please refresh the page.");
@@ -23,7 +26,7 @@ const Tenders = () => {
       }
     };
     fetchTenders();
-  }, []);
+  }, [user]);
 
   return (
     <div className="tenders-page">

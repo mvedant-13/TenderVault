@@ -7,9 +7,10 @@ import {
   deleteTender,
 } from "../controllers/tenderController.js";
 import { protect, authorizeRoles } from "../middleware/authMiddleware.js";
-import { upload } from "../middleware/uploadMiddleware.js";
+import { createUploader } from "../middleware/uploadMiddleware.js";
 
 const router = express.Router();
+const upload = createUploader("tenders");
 
 router
   .route("/")
