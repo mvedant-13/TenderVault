@@ -19,10 +19,12 @@ const Navbar = () => {
       <div className="navbar-links">
         {user ? (
           <>
+            <Link to="/dashboard">Dashboard</Link>
+            <Link to="/tenders">All Tenders</Link>
+            {user.role === "admin" && <Link to="/my-tenders">My Tenders</Link>}
             <span className="navbar-user">
               {user.name} <span className="navbar-role">({user.role})</span>
             </span>
-            <Link to="/dashboard">Dashboard</Link>
             <button className="navbar-logout" onClick={handleLogout}>
               Logout
             </button>

@@ -58,16 +58,23 @@
   background-color: var(--color-bg);
 }
 
-.tender-table td:nth-child(6) {
-  text-transform: capitalize;
-  color: var(--color-text-muted);
-}
-
-/* Responsive: allow horizontal scroll on small screens instead of squishing */
 @media (max-width: 640px) {
   .tender-table {
     display: block;
     overflow-x: auto;
     white-space: nowrap;
   }
+}
+
+.tender-table td:last-child button {
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border-radius: var(--radius);
+  padding: 0.35rem 0.7rem;
+  font-size: 0.8rem;
+}
+
+.tender-table td:last-child button:hover {
+  background-color: var(--color-bg);
 }

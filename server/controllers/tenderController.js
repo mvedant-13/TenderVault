@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+import path from "path";
+
 import Tender from "../models/Tender.js";
 import { cleanupUploadedFiles } from "../utils/cleanupUploadedFiles.js";
 import { handleControllerError } from "../utils/handleControllerError.js";
@@ -32,7 +34,7 @@ export const createTender = async (req, res) => {
 
     const documents = (req.files || []).map((file) => ({
       fileName: file.originalname,
-      filePath: file.path,
+      filePath: path.relative(process.cwd(), file.path).replace(/\\/g, "/"),
     }));
 
     const tender = await Tender.create({
@@ -158,7 +160,7 @@ export const updateTender = async (req, res) => {
     if (req.files && req.files.length > 0) {
       const newDocs = req.files.map((file) => ({
         fileName: file.originalname,
-        filePath: file.path,
+        filePath: path.relative(process.cwd(), file.path).replace(/\\/g, "/"),
       }));
       tender.documents.push(...newDocs);
     }

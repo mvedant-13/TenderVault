@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { getTenders } from "../api/tenderApi";
 import "./Tenders.css";
 
 const Tenders = () => {
+  const navigate = useNavigate();
   const [tenders, setTenders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [listError, setListError] = useState("");
@@ -42,6 +44,7 @@ const Tenders = () => {
               <th>Deadline</th>
               <th>Status</th>
               <th>Posted By</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -55,6 +58,14 @@ const Tenders = () => {
                 <td>{tender.status}</td>
                 <td>
                   {tender.createdBy?.companyName || tender.createdBy?.name}
+                </td>
+                <td>
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/tenders/${tender._id}`)}
+                  >
+                    View Details
+                  </button>
                 </td>
               </tr>
             ))}

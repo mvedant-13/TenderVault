@@ -3,7 +3,9 @@ import Login from "../pages/Login";
 import Register from "../pages/Register";
 import Dashboard from "../pages/Dashboard";
 import Tenders from "../pages/Tenders";
+import TenderDetail from "../pages/TenderDetail";
 import MyTenders from "../pages/MyTenders";
+import TenderFormPage from "../pages/TenderFormPage";
 import Unauthorized from "../pages/Unauthorized";
 import ProtectedRoute from "../components/ProtectedRoute";
 
@@ -26,8 +28,17 @@ const AppRoutes = () => {
       <Route
         path="/tenders"
         element={
-          <ProtectedRoute allowedRoles={["admin"]}>
+          <ProtectedRoute allowedRoles={["admin", "vendor"]}>
             <Tenders />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/tenders/:id"
+        element={
+          <ProtectedRoute allowedRoles={["admin", "vendor"]}>
+            <TenderDetail />
           </ProtectedRoute>
         }
       />
@@ -37,6 +48,24 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute allowedRoles={["admin"]}>
             <MyTenders />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/my-tenders/new"
+        element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <TenderFormPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/my-tenders/:id/edit"
+        element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <TenderFormPage />
           </ProtectedRoute>
         }
       />

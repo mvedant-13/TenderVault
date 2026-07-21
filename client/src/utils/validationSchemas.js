@@ -27,4 +27,5 @@ export const tenderSchema = z.object({
   deadline: z.string().refine((val) => new Date(val) > new Date(), {
     message: "Deadline must be a future date",
   }),
+  documents: z.any().optional(),
 });
