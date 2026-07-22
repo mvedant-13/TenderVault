@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 import { getTenderById, deleteTender } from "../api/tenderApi";
+import { getBids } from "../api/bidApi";
+import BidForm from "../components/BidForm";
 import "./TenderDetail.css";
 
 const SERVER_ORIGIN = import.meta.env.VITE_API_BASE_URL.replace(
@@ -16,6 +18,9 @@ const TenderDetail = () => {
 
   const [tender, setTender] = useState(null);
   const [error, setError] = useState("");
+  const [showBidForm, setShowBidForm] = useState(false);
+  const [hasExistingBid, setHasExistingBid] = useState(false);
+  const [checkingBid, setCheckingBid] = useState(true);
 
   useEffect(() => {
     const loadTender = async () => {
@@ -29,6 +34,26 @@ const TenderDetail = () => {
     loadTender();
   }, [id]);
 
+  useEffect(() => {
+    const checkExistingBid = async () => {
+      if (user.role !== "vendor") {
+        setCheckingBid(false);
+        return;
+      }
+      try {
+        const myBids = await getBids();
+        const alreadyBid = myBids.some((bid) => bid.tender?._id === id);
+        setHasExistingBid(alreadyBid);
+      } catch {
+        setError("Could not check for existing bids.");
+      } finally {
+        setCheckingBid(false);
+      }
+    };
+    checkExistingBid();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
+
   const handleDelete = async () => {
     if (!window.confirm("Delete this tender? This cannot be undone.")) return;
     try {
@@ -39,10 +64,20 @@ const TenderDetail = () => {
     }
   };
 
+  const handleBidSuccess = () => {
+    setShowBidForm(false);
+    navigate("/my-bids");
+  };
+
   if (error) return <p className="field-error">{error}</p>;
   if (!tender) return <p>Loading...</p>;
 
   const isOwner = user._id === tender.createdBy?._id;
+  const canBid =
+    user.role === "vendor" &&
+    tender.status === "open" &&
+    !checkingBid &&
+    !hasExistingBid;
 
   return (
     <div className="tender-detail-page">
@@ -117,9 +152,39 @@ const TenderDetail = () => {
             <button type="button" onClick={handleDelete}>
               Delete
             </button>
+            <button
+              type="button"
+              onClick={() => navigate(`/tenders/${tender._id}/bids`)}
+            >
+              View Bids
+            </button>
+          </div>
+        )}
+
+        {user.role === "vendor" && hasExistingBid && !checkingBid && (
+          <p className="no-documents">
+            You've already submitted a bid for this tender.{" "}
+            <Link to="/my-bids">View it here</Link>.
+          </p>
+        )}
+
+        {canBid && !showBidForm && (
+          <div className="tender-detail-actions">
+            <button type="button" onClick={() => setShowBidForm(true)}>
+              Submit Bid
+            </button>
           </div>
         )}
       </div>
+
+      {canBid && showBidForm && (
+        <BidForm
+          mode="create"
+          tenderId={tender._id}
+          onSuccess={handleBidSuccess}
+          onCancel={() => setShowBidForm(false)}
+        />
+      )}
     </div>
   );
 };

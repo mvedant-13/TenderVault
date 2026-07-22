@@ -6,97 +6,64 @@ A full-stack **Tender Management System** built with the MERN stack. Organizatio
 
 ## Tech Stack
 
-|
-Layer  
-|
-Technology  
-|
-|
-
----
-
-## |
-
-|
-|
-Frontend  
-|
-React (Vite) + Vanilla CSS, React Router, Axios, React Hook Form + Zod
-|
-|
-Backend  
-|
-Node.js + Express 5 (ESM /
-`"type": "module"`
-)  
-|
-|
-Database  
-|
-MongoDB + Mongoose 9  
-|
-|
-Auth  
-|
-JWT + bcryptjs  
-|
-|
-File Upload
-|
-Multer (local dev, per-entity subfolders) → Cloudinary/S3 (production) — planned
-|
-|
-AI  
-|
-OpenAI / Anthropic API (planned)  
-|
+| Layer       | Technology                                                                       |
+| ----------- | -------------------------------------------------------------------------------- |
+| Frontend    | React (Vite) + Vanilla CSS, React Router, Axios, React Hook Form + Zod           |
+| Backend     | Node.js + Express 5 (ESM / `"type": "module"`)                                   |
+| Database    | MongoDB + Mongoose 9                                                             |
+| Auth        | JWT + bcryptjs                                                                   |
+| File Upload | Multer (local dev, per-entity subfolders) → Cloudinary/S3 (production) — planned |
+| AI          | OpenAI / Anthropic API (planned)                                                 |
 
 ---
 
 ## Project Structure
 
+```
 TenderVault/
 ├── .gitignore
 ├── client/
-│ ├── src/
-│ │ ├── api/ axiosInstance.js, authApi.js, tenderApi.js, (bidApi.js — in progress)
-│ │ ├── context/ AuthContextObject.js, AuthContext.jsx, useAuth.js
-│ │ ├── components/ Navbar.jsx, ProtectedRoute.jsx, TenderForm.jsx
-│ │ ├── pages/ Login.jsx, Register.jsx, Dashboard.jsx, Unauthorized.jsx,
-│ │ │ Tenders.jsx, MyTenders.jsx, TenderDetail.jsx, TenderFormPage.jsx
-│ │ ├── routes/ AppRoutes.jsx
-│ │ ├── utils/ validationSchemas.js
-│ │ ├── App.jsx, App.css, index.css, main.jsx
-│ ├── .env / .env.example
+│   ├── src/
+│   │   ├── api/          axiosInstance.js, authApi.js, tenderApi.js, bidApi.js
+│   │   ├── context/      AuthContextObject.js, AuthContext.jsx, useAuth.js
+│   │   ├── components/   Navbar.jsx, ProtectedRoute.jsx, TenderForm.jsx, BidForm.jsx
+│   │   ├── pages/        Login.jsx, Register.jsx, Dashboard.jsx, Unauthorized.jsx,
+│   │   │                 Tenders.jsx, MyTenders.jsx, TenderDetail.jsx, TenderFormPage.jsx,
+│   │   │                 MyBids.jsx, BidFormPage.jsx, TenderBids.jsx
+│   │   ├── routes/       AppRoutes.jsx
+│   │   ├── utils/        validationSchemas.js
+│   │   ├── App.jsx, App.css, index.css, main.jsx
+│   ├── .env / .env.example
 │
 └── server/
-├── config/
-│ └── db.js
-├── models/
-│ ├── User.js
-│ ├── Tender.js
-│ └── Bid.js
-├── routes/
-│ ├── authRoutes.js
-│ ├── tenderRoutes.js
-│ └── bidRoutes.js
-├── controllers/
-│ ├── authController.js
-│ ├── tenderController.js
-│ └── bidController.js
-├── middleware/
-│ ├── authMiddleware.js (protect, authorizeRoles)
-│ └── uploadMiddleware.js (createUploader factory — per-subfolder multer instances)
-├── utils/
-│ ├── generateToken.js
-│ ├── cleanupUploadedFiles.js
-│ └── handleControllerError.js
-├── uploads/
-│ ├── tenders/ (local file storage — dev only)
-│ └── bids/ (local file storage — dev only)
-├── .env
-├── .env.example
-└── server.js
+    ├── config/
+    │   └── db.js
+    ├── models/
+    │   ├── User.js
+    │   ├── Tender.js
+    │   └── Bid.js
+    ├── routes/
+    │   ├── authRoutes.js
+    │   ├── tenderRoutes.js
+    │   └── bidRoutes.js
+    ├── controllers/
+    │   ├── authController.js
+    │   ├── tenderController.js
+    │   └── bidController.js
+    ├── middleware/
+    │   ├── authMiddleware.js      (protect, authorizeRoles)
+    │   └── uploadMiddleware.js    (createUploader factory — per-subfolder multer instances)
+    ├── utils/
+    │   ├── generateToken.js
+    │   ├── cleanupUploadedFiles.js
+    │   └── handleControllerError.js
+    ├── uploads/
+    │   ├── tenders/   (local file storage — dev only)
+    │   └── bids/      (local file storage — dev only)
+    ├── .env
+    ├── .env.example
+    └── server.js
+```
 
 ---
 
@@ -199,7 +166,7 @@ npm run dev
 
 - Only the admin who created a tender can update or delete it — other admins are blocked.
 - `?createdBy=<userId>` filters tenders by the creating admin — used by the admin's "My Tenders" view.
-- `documentsToDelete` (on PUT) accepts a JSON-stringified array of document `_id`s to remove, e.g. `["64f1a2b3c4d5e6f7g8h9i0j1"]`.
+- `documentsToDelete` (on PUT) accepts a JSON-stringified array of document `_id`s to remove.
 - Deleting a tender, or removing individual documents on update, also deletes the corresponding files from disk.
 - Uploaded files are validated for type (`pdf`, `doc`, `docx`, `jpeg`, `png`) and size (10MB limit per file).
 
@@ -218,7 +185,9 @@ npm run dev
 
 - A vendor cannot submit more than one bid on the same tender (enforced via a unique compound index in the schema, not just app logic).
 - Bids can only be created against tenders with `status: "open"` and a future deadline.
+- The `tender` ID is sent inside the FormData body on `POST /api/bids` (not as a query param).
 - Once an admin changes a bid's status away from `submitted`, the vendor can no longer edit or withdraw it.
+- Bid status can only move to `shortlisted`, `rejected`, or `awarded` — it can never be reverted back to `submitted` via this endpoint.
 - `documentsToDelete` on `PUT /api/bids/:id` follows the same convention as Tenders — a JSON-stringified array of document `_id`s.
 - Bid documents are stored in `server/uploads/bids/`, separate from tender documents in `server/uploads/tenders/`, both served via the same `/uploads` static mount.
 
@@ -235,17 +204,18 @@ For tender/bid create/update requests, use **Body → form-data** (not raw JSON)
 
 ## Frontend Routes (Implemented)
 
-| Path            | Access       | Description                                                                            |
-| --------------- | ------------ | -------------------------------------------------------------------------------------- |
-| `/login`        | Public       | Login form                                                                             |
-| `/register`     | Public       | Registration form (choose admin or vendor)                                             |
-| `/dashboard`    | Admin/Vendor | Placeholder landing page                                                               |
-| `/tenders`      | Admin/Vendor | Read-only table of tenders. Admins see all statuses; vendors see only `open` tenders   |
-| `/tenders/:id`  | Admin/Vendor | Tender detail view with documents and (for the creating admin) edit/delete access      |
-| `/my-tenders`   | Admin only   | The logged-in admin's own tenders — create, edit, and delete, with file upload/removal |
-| `/unauthorized` | —            | Shown when a logged-in user hits a route their role can't access                       |
-
-**Frontend routes for Bids (vendor dashboard, admin bid review) are in progress — not yet implemented.**
+| Path                      | Access                    | Description                                                                                                                                        |
+| ------------------------- | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/login`                  | Public                    | Login form                                                                                                                                         |
+| `/register`               | Public                    | Registration form (choose admin or vendor)                                                                                                         |
+| `/dashboard`              | Admin/Vendor              | Placeholder landing page                                                                                                                           |
+| `/tenders`                | Admin/Vendor              | Read-only table of tenders. Admins see all statuses; vendors see only `open` tenders                                                               |
+| `/tenders/:id`            | Admin/Vendor              | Tender detail view with documents; owning admin gets edit/delete/view-bids access; vendor gets a Submit Bid action (hidden if they've already bid) |
+| `/tenders/:tenderId/bids` | Admin (tender owner only) | Review bids on one tender — shortlist, reject, or award each bid                                                                                   |
+| `/my-tenders`             | Admin only                | The logged-in admin's own tenders — create, edit, and delete, with file upload/removal                                                             |
+| `/my-bids`                | Vendor only               | The logged-in vendor's own bids — edit/withdraw while status is `submitted`                                                                        |
+| `/my-bids/:id/edit`       | Vendor only               | Edit an existing submitted bid                                                                                                                     |
+| `/unauthorized`           | —                         | Shown when a logged-in user hits a route their role can't access                                                                                   |
 
 ---
 
@@ -272,7 +242,7 @@ All controllers return a safe, generic message to the client (`{ message: "..." 
 - [x] Phase 2, Step 7 — Admin dashboard (frontend) — built, styled, full manual test checklist passed
 - [x] Phase 2, Step 8 — Vendor tender browsing (frontend) — code written, in-browser confirmation pending
 - [x] Phase 3, Step 9 — Bid CRUD + status APIs (backend) — fully built and Postman-tested (18/18 cases passed)
-- [ ] Phase 3, Steps 10–11 — Vendor bid dashboard + admin bid review (frontend) — in progress
+- [x] Phase 3, Steps 10–11 — Vendor bid dashboard + admin bid review (frontend) — built, in-browser testing pending
 - [ ] Phase 4 — AI features (summarization, bid scoring, compliance checks)
 - [ ] Phase 5 — Notifications, UI polish, testing
 - [ ] Phase 6 — Deployment (Atlas + Render/Railway + Vercel)

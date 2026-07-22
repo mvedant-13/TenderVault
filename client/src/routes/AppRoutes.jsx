@@ -6,6 +6,9 @@ import Tenders from "../pages/Tenders";
 import TenderDetail from "../pages/TenderDetail";
 import MyTenders from "../pages/MyTenders";
 import TenderFormPage from "../pages/TenderFormPage";
+import MyBids from "../pages/MyBids";
+import BidFormPage from "../pages/BidFormPage";
+import TenderBids from "../pages/TenderBids";
 import Unauthorized from "../pages/Unauthorized";
 import ProtectedRoute from "../components/ProtectedRoute";
 
@@ -44,6 +47,15 @@ const AppRoutes = () => {
       />
 
       <Route
+        path="/tenders/:tenderId/bids"
+        element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <TenderBids />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
         path="/my-tenders"
         element={
           <ProtectedRoute allowedRoles={["admin"]}>
@@ -66,6 +78,24 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute allowedRoles={["admin"]}>
             <TenderFormPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/my-bids"
+        element={
+          <ProtectedRoute allowedRoles={["vendor"]}>
+            <MyBids />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/my-bids/:id/edit"
+        element={
+          <ProtectedRoute allowedRoles={["vendor"]}>
+            <BidFormPage />
           </ProtectedRoute>
         }
       />

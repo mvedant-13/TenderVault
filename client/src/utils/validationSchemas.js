@@ -29,3 +29,10 @@ export const tenderSchema = z.object({
   }),
   documents: z.any().optional(),
 });
+
+export const bidSchema = z.object({
+  quotedPrice: z.coerce
+    .number({ invalid_type_error: "Quoted price must be a number" })
+    .positive("Quoted price must be greater than 0"),
+  documents: z.any().optional(),
+});

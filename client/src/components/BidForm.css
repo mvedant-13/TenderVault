@@ -1,0 +1,118 @@
+.bid-form-section {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  max-width: 700px;
+}
+
+.bid-form-section h2 {
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  color: var(--color-text);
+}
+
+.form-field {
+  margin-bottom: 1.1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-field label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 0.4rem;
+}
+
+.form-field input,
+.form-field textarea {
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  color: var(--color-text);
+  background-color: var(--color-surface);
+}
+
+.form-field input:focus,
+.form-field textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(47, 93, 80, 0.15);
+}
+
+.form-field input[type="file"] {
+  border: none;
+  padding: 0.3rem 0;
+}
+
+.existing-docs {
+  margin-bottom: 1.1rem;
+  padding: 0.75rem 1rem;
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.existing-docs > p {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.existing-doc-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+  color: var(--color-text);
+  padding: 0.3rem 0;
+  cursor: pointer;
+}
+
+.existing-doc-item input[type="checkbox"] {
+  cursor: pointer;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.form-actions button {
+  border: none;
+  border-radius: var(--radius);
+  padding: 0.6rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.form-actions button[type="submit"] {
+  background-color: var(--color-primary);
+  color: var(--color-surface);
+}
+
+.form-actions button[type="submit"]:hover:not(:disabled) {
+  background-color: var(--color-primary-dark);
+}
+
+.form-actions button[type="submit"]:disabled {
+  background-color: var(--color-border);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+.form-actions button[type="button"] {
+  background-color: var(--color-surface);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+}
+
+.form-actions button[type="button"]:hover {
+  background-color: var(--color-bg);
+}

@@ -1,0 +1,103 @@
+.my-bids-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.my-bids-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.my-bids-header h1 {
+  font-size: 1.75rem;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.my-bids-page .field-error {
+  background-color: var(--color-error-bg);
+  color: var(--color-error);
+  border: 1px solid var(--color-error);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.9rem;
+  margin-top: 0.35rem;
+  font-size: 0.85rem;
+}
+
+.bid-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--color-surface);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+}
+
+.bid-table thead {
+  background-color: var(--color-primary);
+}
+
+.bid-table th {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-surface);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.bid-table td {
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  color: var(--color-text);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.bid-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.bid-table tbody tr:hover {
+  background-color: var(--color-bg);
+}
+
+.bid-table td.status-cell {
+  text-transform: capitalize;
+  color: var(--color-text-muted);
+}
+
+.bid-table td:last-child button {
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border-radius: var(--radius);
+  padding: 0.35rem 0.7rem;
+  font-size: 0.8rem;
+  margin-right: 0.5rem;
+}
+
+.bid-table td:last-child button:hover {
+  background-color: var(--color-bg);
+}
+
+.bid-table td:last-child button:last-child {
+  color: var(--color-error);
+  border-color: var(--color-error);
+  margin-right: 0;
+}
+
+.bid-table td:last-child button:last-child:hover {
+  background-color: var(--color-error-bg);
+}
+
+@media (max-width: 640px) {
+  .bid-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
