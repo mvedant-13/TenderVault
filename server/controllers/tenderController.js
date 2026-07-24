@@ -4,6 +4,7 @@ import path from "path";
 import Tender from "../models/Tender.js";
 import { cleanupUploadedFiles } from "../utils/cleanupUploadedFiles.js";
 import { handleControllerError } from "../utils/handleControllerError.js";
+import { generateTenderSummary } from "../services/geminiService.js";
 
 // POST /api/tenders
 export const createTender = async (req, res) => {
@@ -37,6 +38,17 @@ export const createTender = async (req, res) => {
       filePath: path.relative(process.cwd(), file.path).replace(/\\/g, "/"),
     }));
 
+    const aiSummary =
+      (await generateTenderSummary({
+        title,
+        description,
+        department,
+        category,
+        budget,
+        deadline,
+        documents,
+      })) || "";
+
     const tender = await Tender.create({
       title,
       description,
@@ -45,6 +57,7 @@ export const createTender = async (req, res) => {
       budget,
       deadline,
       documents,
+      aiSummary,
       createdBy: req.user._id,
     });
 
@@ -170,6 +183,50 @@ export const updateTender = async (req, res) => {
   } catch (error) {
     cleanupUploadedFiles(req.files);
     handleControllerError(error, res, "Update tender");
+  }
+};
+
+// PUT /api/tenders/:id/summarize
+export const regenerateTenderSummary = async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid tender ID" });
+    }
+
+    const tender = await Tender.findById(req.params.id);
+
+    if (!tender) {
+      return res.status(404).json({ message: "Tender not found" });
+    }
+
+    if (tender.createdBy.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        message: "Not authorized to regenerate this tender's summary",
+      });
+    }
+
+    const summary = await generateTenderSummary({
+      title: tender.title,
+      description: tender.description,
+      department: tender.department,
+      category: tender.category,
+      budget: tender.budget,
+      deadline: tender.deadline,
+      documents: tender.documents,
+    });
+
+    if (!summary) {
+      return res
+        .status(502)
+        .json({ message: "AI summary generation failed. Please try again." });
+    }
+
+    tender.aiSummary = summary;
+    await tender.save();
+
+    res.status(200).json(tender);
+  } catch (error) {
+    handleControllerError(error, res, "Regenerate tender summary");
   }
 };
 

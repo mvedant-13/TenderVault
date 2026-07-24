@@ -5,6 +5,7 @@ import {
   getTenderById,
   updateTender,
   deleteTender,
+  regenerateTenderSummary,
 } from "../controllers/tenderController.js";
 import { protect, authorizeRoles } from "../middleware/authMiddleware.js";
 import { createUploader } from "../middleware/uploadMiddleware.js";
@@ -32,5 +33,9 @@ router
     updateTender,
   )
   .delete(protect, authorizeRoles("admin"), deleteTender);
+
+router
+  .route("/:id/summarize")
+  .put(protect, authorizeRoles("admin"), regenerateTenderSummary);
 
 export default router;
