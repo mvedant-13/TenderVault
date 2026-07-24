@@ -19,7 +19,7 @@ const TenderDetail = () => {
   const [tender, setTender] = useState(null);
   const [error, setError] = useState("");
   const [showBidForm, setShowBidForm] = useState(false);
-  const [hasExistingBid, setHasExistingBid] = useState(false);
+  const [myBid, setMyBid] = useState(null);
   const [checkingBid, setCheckingBid] = useState(true);
 
   useEffect(() => {
@@ -42,8 +42,8 @@ const TenderDetail = () => {
       }
       try {
         const myBids = await getBids();
-        const alreadyBid = myBids.some((bid) => bid.tender?._id === id);
-        setHasExistingBid(alreadyBid);
+        const found = myBids.find((bid) => bid.tender?._id === id);
+        setMyBid(found || null);
       } catch {
         setError("Could not check for existing bids.");
       } finally {
@@ -77,7 +77,7 @@ const TenderDetail = () => {
     user.role === "vendor" &&
     tender.status === "open" &&
     !checkingBid &&
-    !hasExistingBid;
+    !myBid;
 
   return (
     <div className="tender-detail-page">
@@ -161,11 +161,44 @@ const TenderDetail = () => {
           </div>
         )}
 
-        {user.role === "vendor" && hasExistingBid && !checkingBid && (
-          <p className="no-documents">
-            You've already submitted a bid for this tender.{" "}
-            <Link to="/my-bids">View it here</Link>.
-          </p>
+        {user.role === "vendor" && myBid && !checkingBid && (
+          <div className="tender-detail-documents">
+            <h2>Your Bid</h2>
+            <div className="tender-detail-meta">
+              <div>
+                <span className="meta-label">Quoted Price</span>
+                <span>₹{myBid.quotedPrice}</span>
+              </div>
+              <div>
+                <span className="meta-label">Status</span>
+                <span className={`status-badge status-${myBid.status}`}>
+                  {myBid.status}
+                </span>
+              </div>
+            </div>
+            {myBid.documents?.length > 0 ? (
+              <ul>
+                {myBid.documents.map((doc) => (
+                  <li key={doc._id}>
+                    <a
+                      href={`${SERVER_ORIGIN}/${doc.filePath}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {doc.fileName}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="no-documents">No documents attached.</p>
+            )}
+            {myBid.status === "submitted" && (
+              <p className="no-documents">
+                <Link to={`/my-bids/${myBid._id}/edit`}>Edit your bid</Link>
+              </p>
+            )}
+          </div>
         )}
 
         {canBid && !showBidForm && (

@@ -1,54 +1,5 @@
 .app-main {
   max-width: 1100px;
   margin: 0 auto;
-  padding: 2rem 1.5rem;
-}
-
-/* Navbar */
-.navbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.9rem 1.5rem;
-  background-color: var(--color-surface);
-  border-bottom: 1px solid var(--color-border);
-}
-
-.navbar-brand {
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--color-primary-dark);
-}
-
-.navbar-brand:hover {
-  text-decoration: none;
-}
-
-.navbar-links {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-}
-
-.navbar-user {
-  color: var(--color-text);
-  font-size: 0.9rem;
-}
-
-.navbar-role {
-  color: var(--color-text-muted);
-  text-transform: capitalize;
-}
-
-.navbar-logout {
-  background: none;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  padding: 0.4rem 0.9rem;
-  font-size: 0.85rem;
-  color: var(--color-text);
-}
-
-.navbar-logout:hover {
-  background-color: var(--color-bg);
+  padding: var(--space-2xl) var(--space-xl);
 }

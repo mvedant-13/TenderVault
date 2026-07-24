@@ -1,5 +1,6 @@
-import { Link, useNavigate } from "react-router-dom";
+import { NavLink, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
+import "./Navbar.css";
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -19,10 +20,12 @@ const Navbar = () => {
       <div className="navbar-links">
         {user ? (
           <>
-            <Link to="/dashboard">Dashboard</Link>
-            <Link to="/tenders">All Tenders</Link>
-            {user.role === "admin" && <Link to="/my-tenders">My Tenders</Link>}
-            {user.role === "vendor" && <Link to="/my-bids">My Bids</Link>}
+            <NavLink to="/dashboard">Dashboard</NavLink>
+            <NavLink to="/tenders">All Tenders</NavLink>
+            {user.role === "admin" && (
+              <NavLink to="/my-tenders">My Tenders</NavLink>
+            )}
+            {user.role === "vendor" && <NavLink to="/my-bids">My Bids</NavLink>}{" "}
             <span className="navbar-user">
               {user.name} <span className="navbar-role">({user.role})</span>
             </span>
@@ -32,8 +35,8 @@ const Navbar = () => {
           </>
         ) : (
           <>
-            <Link to="/login">Login</Link>
-            <Link to="/register">Register</Link>
+            <NavLink to="/login">Login</NavLink>
+            <NavLink to="/register">Register</NavLink>
           </>
         )}
       </div>

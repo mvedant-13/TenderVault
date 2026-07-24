@@ -1,14 +1,14 @@
 .my-bids-page {
   max-width: 900px;
   margin: 0 auto;
-  padding: 2rem 1.5rem;
+  padding: var(--space-2xl) var(--space-xl);
 }
 
 .my-bids-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--space-xl);
 }
 
 .my-bids-header h1 {
@@ -22,8 +22,8 @@
   color: var(--color-error);
   border: 1px solid var(--color-error);
   border-radius: var(--radius);
-  padding: 0.6rem 0.9rem;
-  margin-top: 0.35rem;
+  padding: var(--space-sm) var(--space-md);
+  margin-top: var(--space-2xs);
   font-size: 0.85rem;
 }
 
@@ -34,6 +34,11 @@
   border-radius: var(--radius);
   overflow: hidden;
   box-shadow: var(--shadow-card);
+  transition: box-shadow var(--transition-fast);
+}
+
+.bid-table:hover {
+  box-shadow: var(--shadow-card-hover);
 }
 
 .bid-table thead {
@@ -42,7 +47,7 @@
 
 .bid-table th {
   text-align: left;
-  padding: 0.75rem 1rem;
+  padding: var(--space-md) var(--space-lg);
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--color-surface);
@@ -51,14 +56,19 @@
 }
 
 .bid-table td {
-  padding: 0.75rem 1rem;
+  padding: var(--space-md) var(--space-lg);
   font-size: 0.9rem;
   color: var(--color-text);
   border-bottom: 1px solid var(--color-border);
+  vertical-align: top;
 }
 
 .bid-table tbody tr:last-child td {
   border-bottom: none;
+}
+
+.bid-table tbody tr {
+  transition: background-color var(--transition-fast);
 }
 
 .bid-table tbody tr:hover {
@@ -77,11 +87,16 @@
   border-radius: var(--radius);
   padding: 0.35rem 0.7rem;
   font-size: 0.8rem;
-  margin-right: 0.5rem;
+  margin-right: var(--space-xs);
+  margin-bottom: var(--space-2xs);
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast);
 }
 
 .bid-table td:last-child button:hover {
   background-color: var(--color-bg);
+  border-color: var(--color-primary);
 }
 
 .bid-table td:last-child button:last-child {
@@ -92,6 +107,7 @@
 
 .bid-table td:last-child button:last-child:hover {
   background-color: var(--color-error-bg);
+  border-color: var(--color-error);
 }
 
 @media (max-width: 640px) {

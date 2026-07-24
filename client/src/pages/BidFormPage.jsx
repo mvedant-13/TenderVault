@@ -29,12 +29,14 @@ const BidFormPage = () => {
   if (!bid) return <p>Loading...</p>;
 
   return (
-    <BidForm
-      mode="edit"
-      initialBid={bid}
-      onSuccess={handleSuccess}
-      onCancel={() => navigate("/my-bids")}
-    />
+    <div className="my-bids-page">
+      <BidForm
+        mode="edit"
+        initialBid={bid}
+        onSuccess={handleSuccess}
+        onCancel={() => navigate("/my-bids")}
+      />
+    </div>
   );
 };
 

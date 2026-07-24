@@ -26,7 +26,8 @@ TenderVault/
 │   ├── src/
 │   │   ├── api/          axiosInstance.js, authApi.js, tenderApi.js, bidApi.js
 │   │   ├── context/      AuthContextObject.js, AuthContext.jsx, useAuth.js
-│   │   ├── components/   Navbar.jsx, ProtectedRoute.jsx, TenderForm.jsx, BidForm.jsx
+│   │   ├── components/   Navbar.jsx, Navbar.css, ProtectedRoute.jsx, TenderForm.jsx,
+│   │   │                 TenderForm.css, BidForm.jsx, BidForm.css
 │   │   ├── pages/        Login.jsx, Register.jsx, Dashboard.jsx, Unauthorized.jsx,
 │   │   │                 Tenders.jsx, MyTenders.jsx, TenderDetail.jsx, TenderFormPage.jsx,
 │   │   │                 MyBids.jsx, BidFormPage.jsx, TenderBids.jsx
@@ -67,13 +68,15 @@ TenderVault/
 
 ---
 
-## Data Models
+## Design System
 
-**User** — `name`, `email`, `password (hashed)`, `role (admin|vendor)`, `companyName`, `gstNumber`
+Vanilla CSS with custom properties defined in `client/src/index.css`:
 
-**Tender** — `title`, `description`, `department`, `category`, `budget`, `deadline`, `status (open|closed|awarded, default: open)`, `documents[] ({fileName, filePath, uploadedAt})`, `aiSummary`, `createdBy → User`
-
-**Bid** — `tender → Tender`, `vendor → User`, `quotedPrice`, `documents[] ({fileName, filePath, uploadedAt})`, `aiScore`, `aiFlags[]`, `status (submitted|shortlisted|rejected|awarded, default: submitted)`. Unique compound index on `{tender, vendor}` — one bid per vendor per tender.
+- **Colors:** `--color-bg`, `--color-surface`, `--color-primary`, `--color-primary-dark`, `--color-text`, `--color-text-muted`, `--color-border`, `--color-error`, `--color-error-bg`
+- **Spacing scale:** `--space-2xs` through `--space-2xl` (0.25rem–3rem), used consistently across all page and component stylesheets instead of ad-hoc values
+- **Motion:** `--transition-fast` (150ms ease) applied to buttons, table rows, and hover states
+- **Elevation:** `--shadow-card` (default) and `--shadow-card-hover` (on hover)
+- **Accessibility:** a global `:focus-visible` outline is defined once and applies app-wide
 
 ---
 
@@ -147,10 +150,10 @@ npm run dev
 
 ### Auth
 
-| Method | Endpoint             | Access | Description                |
-| ------ | -------------------- | ------ | -------------------------- |
-| POST   | `/api/auth/register` | Public | Register (admin or vendor) |
-| POST   | `/api/auth/login`    | Public | Login, returns JWT         |
+| Method | Endpoint             | Access | Description                                                                                     |
+| ------ | -------------------- | ------ | ----------------------------------------------------------------------------------------------- |
+| POST   | `/api/auth/register` | Public | Register (admin or vendor)                                                                      |
+| POST   | `/api/auth/login`    | Public | Login, returns JWT and user object (`_id`, `name`, `email`, `role`, `companyName`, `gstNumber`) |
 
 ### Tenders
 
@@ -164,7 +167,7 @@ npm run dev
 
 **Notes:**
 
-- Only the admin who created a tender can update or delete it — other admins are blocked.
+- Only the admin who created a tender can update, delete, or view bids on it — other admins are blocked.
 - `?createdBy=<userId>` filters tenders by the creating admin — used by the admin's "My Tenders" view.
 - `documentsToDelete` (on PUT) accepts a JSON-stringified array of document `_id`s to remove.
 - Deleting a tender, or removing individual documents on update, also deletes the corresponding files from disk.
@@ -204,18 +207,18 @@ For tender/bid create/update requests, use **Body → form-data** (not raw JSON)
 
 ## Frontend Routes (Implemented)
 
-| Path                      | Access                    | Description                                                                                                                                        |
-| ------------------------- | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/login`                  | Public                    | Login form                                                                                                                                         |
-| `/register`               | Public                    | Registration form (choose admin or vendor)                                                                                                         |
-| `/dashboard`              | Admin/Vendor              | Placeholder landing page                                                                                                                           |
-| `/tenders`                | Admin/Vendor              | Read-only table of tenders. Admins see all statuses; vendors see only `open` tenders                                                               |
-| `/tenders/:id`            | Admin/Vendor              | Tender detail view with documents; owning admin gets edit/delete/view-bids access; vendor gets a Submit Bid action (hidden if they've already bid) |
-| `/tenders/:tenderId/bids` | Admin (tender owner only) | Review bids on one tender — shortlist, reject, or award each bid                                                                                   |
-| `/my-tenders`             | Admin only                | The logged-in admin's own tenders — create, edit, and delete, with file upload/removal                                                             |
-| `/my-bids`                | Vendor only               | The logged-in vendor's own bids — edit/withdraw while status is `submitted`                                                                        |
-| `/my-bids/:id/edit`       | Vendor only               | Edit an existing submitted bid                                                                                                                     |
-| `/unauthorized`           | —                         | Shown when a logged-in user hits a route their role can't access                                                                                   |
+| Path                      | Access                    | Description                                                                                                                                                                                                                          |
+| ------------------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `/login`                  | Public                    | Login form                                                                                                                                                                                                                           |
+| `/register`               | Public                    | Registration form (choose admin or vendor)                                                                                                                                                                                           |
+| `/dashboard`              | Admin/Vendor              | Placeholder landing page                                                                                                                                                                                                             |
+| `/tenders`                | Admin/Vendor              | Read-only table of tenders. Admins see all statuses; vendors see only `open` tenders                                                                                                                                                 |
+| `/tenders/:id`            | Admin/Vendor              | Tender detail view with documents. Owning admin gets edit/delete/view-bids access. Vendor gets a Submit Bid action (hidden if already bid), or a "Your Bid" panel showing quoted price, status, and documents if they've already bid |
+| `/tenders/:tenderId/bids` | Admin (tender owner only) | Review bids on one tender — shortlist, reject, or award each bid                                                                                                                                                                     |
+| `/my-tenders`             | Admin only                | The logged-in admin's own tenders — create, edit, and delete, with file upload/removal                                                                                                                                               |
+| `/my-bids`                | Vendor only               | The logged-in vendor's own bids — edit/withdraw while status is `submitted`                                                                                                                                                          |
+| `/my-bids/:id/edit`       | Vendor only               | Edit an existing submitted bid                                                                                                                                                                                                       |
+| `/unauthorized`           | —                         | Shown when a logged-in user hits a route their role can't access                                                                                                                                                                     |
 
 ---
 
@@ -240,9 +243,10 @@ All controllers return a safe, generic message to the client (`{ message: "..." 
 - [x] Phase 1 — Frontend skeleton (auth pages, protected routing, navbar)
 - [x] Phase 2, Step 6 — Tender CRUD APIs (backend)
 - [x] Phase 2, Step 7 — Admin dashboard (frontend) — built, styled, full manual test checklist passed
-- [x] Phase 2, Step 8 — Vendor tender browsing (frontend) — code written, in-browser confirmation pending
+- [x] Phase 2, Step 8 — Vendor tender browsing (frontend) — code confirmed correct on review, in-browser click-through still pending
 - [x] Phase 3, Step 9 — Bid CRUD + status APIs (backend) — fully built and Postman-tested (18/18 cases passed)
-- [x] Phase 3, Steps 10–11 — Vendor bid dashboard + admin bid review (frontend) — built, in-browser testing pending
+- [x] Phase 3, Steps 10–11 — Vendor bid dashboard + admin bid review (frontend) — built; bid creation and tender-ownership actions (View Bids/Edit/Delete) confirmed working in-browser; full vendor edit/withdraw and admin shortlist/reject/award click-through still pending
+- [x] UI/CSS design system — unified spacing scale, hover/transition polish, and accessibility focus states applied across all pages
 - [ ] Phase 4 — AI features (summarization, bid scoring, compliance checks)
 - [ ] Phase 5 — Notifications, UI polish, testing
 - [ ] Phase 6 — Deployment (Atlas + Render/Railway + Vercel)
