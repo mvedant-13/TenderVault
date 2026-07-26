@@ -29,7 +29,12 @@ const bidSchema = new mongoose.Schema(
       default: null,
     },
     aiFlags: {
-      type: [String],
+      type: [
+        {
+          severity: { type: String, enum: ["info", "warning"] },
+          message: String,
+        },
+      ],
       default: [],
     },
     status: {

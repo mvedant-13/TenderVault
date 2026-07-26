@@ -142,6 +142,65 @@
   font-size: 0.9rem;
 }
 
+.btn-score {
+  display: inline-block;
+  margin-bottom: var(--space-lg);
+  border: 1px solid var(--color-primary);
+  background-color: var(--color-surface);
+  color: var(--color-primary);
+  border-radius: var(--radius);
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.btn-score:hover:not(:disabled) {
+  background-color: var(--color-bg);
+}
+
+.btn-score:disabled {
+  color: var(--color-text-muted);
+  border-color: var(--color-border);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.ai-score-cell {
+  min-width: 140px;
+}
+
+.ai-score-value {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.ai-flags-list {
+  list-style: none;
+  padding: 0;
+  margin: var(--space-2xs) 0 0 0;
+}
+
+.ai-flags-list li {
+  font-size: 0.78rem;
+  margin-bottom: var(--space-2xs);
+  padding: 0.15rem 0.4rem;
+  border-radius: var(--radius);
+}
+
+.ai-flags-list li.ai-flag-info {
+  color: var(--color-text-muted);
+  background-color: var(--color-bg);
+}
+
+.ai-flags-list li.ai-flag-warning {
+  color: var(--color-error);
+  background-color: var(--color-error-bg);
+}
+
 @media (max-width: 640px) {
   .bid-table {
     display: block;

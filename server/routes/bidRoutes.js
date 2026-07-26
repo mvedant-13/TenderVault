@@ -6,6 +6,7 @@ import {
   updateBid,
   deleteBid,
   updateBidStatus,
+  scoreBidsForTender,
 } from "../controllers/bidController.js";
 import { protect, authorizeRoles } from "../middleware/authMiddleware.js";
 import { createUploader } from "../middleware/uploadMiddleware.js";
@@ -37,5 +38,9 @@ router
 router
   .route("/:id/status")
   .put(protect, authorizeRoles("admin"), updateBidStatus);
+
+router
+  .route("/tender/:tenderId/score")
+  .put(protect, authorizeRoles("admin"), scoreBidsForTender);
 
 export default router;

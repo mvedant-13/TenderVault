@@ -29,3 +29,8 @@ export const updateBidStatus = async (id, status) => {
   const res = await axiosInstance.put(`/bids/${id}/status`, { status });
   return res.data;
 };
+
+export const scoreBidsForTender = async (tenderId) => {
+  const res = await axiosInstance.put(`/bids/tender/${tenderId}/score`);
+  return res.data;
+};

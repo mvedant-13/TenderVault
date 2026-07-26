@@ -5,6 +5,7 @@ import Bid from "../models/Bid.js";
 import Tender from "../models/Tender.js";
 import { cleanupUploadedFiles } from "../utils/cleanupUploadedFiles.js";
 import { handleControllerError } from "../utils/handleControllerError.js";
+import { generateBidScores } from "../services/geminiService.js";
 
 // POST /api/bids
 export const createBid = async (req, res) => {
@@ -192,6 +193,71 @@ export const updateBidStatus = async (req, res) => {
     res.status(200).json(bid);
   } catch (error) {
     handleControllerError(error, res, "Update bid status");
+  }
+};
+
+// PUT /api/bids/tender/:tenderId/score
+export const scoreBidsForTender = async (req, res) => {
+  try {
+    const { tenderId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(tenderId)) {
+      return res.status(400).json({ message: "Invalid tender ID" });
+    }
+
+    const tender = await Tender.findById(tenderId);
+
+    if (!tender) {
+      return res.status(404).json({ message: "Tender not found" });
+    }
+
+    if (tender.createdBy.toString() !== req.user._id.toString()) {
+      return res
+        .status(403)
+        .json({ message: "Not authorized to score bids for this tender" });
+    }
+
+    const bids = await Bid.find({ tender: tenderId });
+
+    if (bids.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "This tender has no bids to score" });
+    }
+
+    const scores = await generateBidScores({
+      budget: tender.budget,
+      bids: bids.map((bid) => ({
+        id: bid._id.toString(),
+        quotedPrice: bid.quotedPrice,
+        documents: bid.documents,
+      })),
+    });
+
+    if (!scores) {
+      return res.status(502).json({
+        message:
+          "AI scoring is temporarily unavailable — please try again later",
+      });
+    }
+
+    const scoresById = new Map(scores.map((s) => [s.id, s]));
+
+    const updatedBids = await Promise.all(
+      bids.map(async (bid) => {
+        const result = scoresById.get(bid._id.toString());
+        if (!result) return bid;
+
+        bid.aiScore = result.aiScore;
+        bid.aiFlags = result.aiFlags || [];
+        await bid.save();
+        return bid;
+      }),
+    );
+
+    res.status(200).json(updatedBids);
+  } catch (error) {
+    handleControllerError(error, res, "Score bids");
   }
 };
 

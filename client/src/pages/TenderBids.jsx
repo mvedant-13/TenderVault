@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { getBids, updateBidStatus } from "../api/bidApi";
+import { getBids, updateBidStatus, scoreBidsForTender } from "../api/bidApi";
 import { getTenderById } from "../api/tenderApi";
 import "./TenderBids.css";
 
@@ -17,6 +17,8 @@ const TenderBids = () => {
   const [loading, setLoading] = useState(true);
   const [listError, setListError] = useState("");
   const [updatingId, setUpdatingId] = useState(null);
+  const [scoring, setScoring] = useState(false);
+  const [scoreError, setScoreError] = useState("");
 
   const fetchBids = async () => {
     setLoading(true);
@@ -79,6 +81,23 @@ const TenderBids = () => {
     }
   };
 
+  const handleScoreBids = async () => {
+    setScoring(true);
+    setScoreError("");
+    try {
+      await scoreBidsForTender(tenderId);
+      await fetchBids();
+    } catch (error) {
+      const message =
+        error.response?.status === 400
+          ? "This tender has no bids to score yet."
+          : "AI scoring is temporarily unavailable — please try again later.";
+      setScoreError(message);
+    } finally {
+      setScoring(false);
+    }
+  };
+
   return (
     <div className="tender-bids-page">
       <Link to={`/tenders/${tenderId}`} className="back-link">
@@ -89,6 +108,19 @@ const TenderBids = () => {
         <h1>Bids Received</h1>
         {tender && <p>{tender.title}</p>}
       </div>
+
+      {bids.length > 0 && (
+        <button
+          type="button"
+          className="btn-score"
+          disabled={scoring}
+          onClick={handleScoreBids}
+        >
+          {scoring ? "Scoring bids..." : "Score Bids (AI)"}
+        </button>
+      )}
+
+      {scoreError && <p className="field-error">{scoreError}</p>}
 
       {loading && <p>Loading bids...</p>}
       {listError && <p className="field-error">{listError}</p>}
@@ -101,6 +133,7 @@ const TenderBids = () => {
             <tr>
               <th>Vendor</th>
               <th>Quoted Price</th>
+              <th>AI Score</th>
               <th>Documents</th>
               <th>Status</th>
               <th>Actions</th>
@@ -116,6 +149,24 @@ const TenderBids = () => {
                   )}
                 </td>
                 <td>{bid.quotedPrice}</td>
+                <td className="ai-score-cell">
+                  {bid.aiScore !== null ? (
+                    <>
+                      <span className="ai-score-value">{bid.aiScore}</span>
+                      {bid.aiFlags?.length > 0 && (
+                        <ul className="ai-flags-list">
+                          {bid.aiFlags.map((flag, i) => (
+                            <li key={i} className={`ai-flag-${flag.severity}`}>
+                              {flag.message}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </>
+                  ) : (
+                    <span className="no-documents">Not scored</span>
+                  )}
+                </td>
                 <td className="documents-cell">
                   {bid.documents?.length > 0 ? (
                     <ul>
